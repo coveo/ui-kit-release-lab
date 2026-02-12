@@ -1,0 +1,34 @@
+{
+  "name": "@release-lab/headless",
+  "version": "0.0.1",
+  "description": "Headless UI engine",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "release:phase1": "echo 'Bump version for @release-lab/headless'",
+    "release:phase3": "echo 'Publish @release-lab/headless'"
+  },
+  "dependencies": {
+    "@release-lab/bueno": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

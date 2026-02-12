@@ -1,0 +1,50 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "**/*.tsbuildinfo"]
+    },
+    "dev": {
+      "dependsOn": ["build"],
+      "cache": false,
+      "persistent": true
+    },
+    "clean": {
+      "cache": false
+    },
+    "release:phase1": {
+      "dependsOn": ["^release:phase1"],
+      "cache": false
+    },
+    "release:phase3": {
+      "dependsOn": ["^release:phase3"],
+      "env": [
+        "NODE_AUTH_TOKEN",
+        "NPM_CONFIG_USERCONFIG",
+        "ACTIONS_ID_TOKEN_REQUEST_URL",
+        "ACTIONS_ID_TOKEN_REQUEST_TOKEN"
+      ],
+      "cache": false
+    },
+    "promote:npm:latest": {
+      "dependsOn": [],
+      "env": [
+        "NODE_AUTH_TOKEN",
+        "NPM_CONFIG_USERCONFIG",
+        "ACTIONS_ID_TOKEN_REQUEST_URL",
+        "ACTIONS_ID_TOKEN_REQUEST_TOKEN"
+      ],
+      "cache": false
+    }
+  },
+  "globalDependencies": [
+    "package.json",
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+    ".npmrc",
+    "tsconfig.json"
+  ],
+  "globalEnv": ["NODE_ENV", "CI"]
+}

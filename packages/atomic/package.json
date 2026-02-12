@@ -1,0 +1,34 @@
+{
+  "name": "@release-lab/atomic",
+  "version": "0.0.1",
+  "description": "Web components library",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "release:phase1": "echo 'Bump version for @release-lab/atomic'",
+    "release:phase3": "echo 'Publish @release-lab/atomic'"
+  },
+  "dependencies": {
+    "@release-lab/headless": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "catalog:"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
