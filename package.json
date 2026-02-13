@@ -1,0 +1,29 @@
+{
+  "name": "release-lab",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "clean": "turbo clean",
+    "release": "pnpm run release:phase1 && pnpm run release:phase2 && pnpm run release:phase3",
+    "release:phase1": "turbo release:phase1 --concurrency=1",
+    "release:phase2": "pnpm run build",
+    "release:phase3": "turbo release:phase3 --concurrency=1",
+    "promote:npm:latest": "turbo promote:npm:latest"
+  },
+  "devDependencies": {
+    "@tsconfig/node20": "20.1.6",
+    "@types/node": "22.16.5",
+    "turbo": "2.5.5",
+    "typescript": "5.8.3"
+  },
+  "pnpm": {
+    "overrides": {}
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=10.0.0"
+  },
+  "packageManager": "pnpm@10.24.0"
+}

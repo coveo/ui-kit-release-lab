@@ -1,0 +1,9 @@
+packages:
+  - 'packages/bueno'
+  - 'packages/headless'
+  - 'packages/atomic'
+  - 'packages/shopify'
+
+catalog:
+  '@types/node': 22.16.5
+  typescript: 5.8.3
