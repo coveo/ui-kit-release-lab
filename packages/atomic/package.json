@@ -18,9 +18,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "clean": "rm -rf dist",
-    "release:phase1": "echo 'Bump version for @release-lab/atomic'",
-    "release:phase3": "echo 'Publish @release-lab/atomic'"
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "@release-lab/headless": "workspace:*"
