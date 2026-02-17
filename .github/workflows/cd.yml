@@ -1,0 +1,184 @@
+name: Release
+
+# NOTE: In ui-kit, this runs on a weekly cron schedule.
+# Here we use workflow_dispatch only for easier testing.
+#
+# RELEASE FLOW (3 phases):
+#   1. PREPARE (Tuesday cron) - bump versions, deploy to RC channel
+#      - Main is frozen ONLY during changeset consumption + version commit
+#   2. BAKE (~48 hours) - ui-kit-cd deploys to CDN RC channel, internal
+#      Coveo sites run against it. The deployment pipeline (ui-kit-cd)
+#      signals readiness by approving the Production GitHub environment.
+#   3. PUBLISH (Thursday cron or after approval) - promote to stable
+#      (npm @latest + cdn vX/)
+
+on:
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: 'Which phase to run'
+        type: choice
+        options:
+          - prepare
+          - publish
+        default: prepare
+        required: true
+      dry-run:
+        description: 'Dry run (skip actual publish)'
+        type: boolean
+        default: true
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+
+  # ============================================================
+  # PHASE 1: PREPARE
+  # Triggered by cron (Tuesday) or manual dispatch
+  # Freezes main, bumps versions, deploys to RC channel for baking
+  # ============================================================
+
+  prepare:
+    name: Prepare Release
+    if: ${{ inputs.phase == 'prepare' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup
+
+      # TODO: Freeze main branch (commit .git-lock + enable "require up to date")
+
+      - name: Consume changesets and bump versions
+        run: pnpm changeset version
+
+      - name: Build all packages
+        run: pnpm run build
+
+      # TODO: Commit version bumps and push
+      # TODO: Unfreeze main branch
+
+      - name: Deploy to CDN RC channel
+        if: ${{ inputs.dry-run == false }}
+        # We will receive the signal that the bake time (48h) is complete via this trigger. 
+        run: node scripts/deploy/trigger-ui-kit-cd.mjs
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  # ============================================================
+  # PHASE 2: PUBLISH (runs after 48h bake)
+  # All jobs run in parallel, can be retried independently
+  # ==========================================================
+
+  npm-publish:
+    name: NPM Publish
+    needs: prepare
+    if: ${{ !cancelled() && needs.publish-gate.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      # No intermediate npm tag (@beta, @rc) is used.
+      # changeset publish pushes the clean semver (e.g. 2.5.0)
+      # directly to @latest. The bake period is CDN-only.
+      # @canary is decoupled — it follows main commits independently.
+      - name: Publish to npm
+        run: pnpm changeset publish
+        env:
+          # TODO: Replace with NPM Trusted Publisher (OIDC)
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  cdn-publish:
+    name: CDN Publish
+    needs: prepare
+    if: ${{ !cancelled() && needs.publish-gate.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      - name: Dispatch CDN deploy to ui-kit-cd
+        # run: node scripts/deploy/trigger-ui-kit-cd.mjs
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  quantic-publish:
+    name: Quantic SFDX Publish
+    needs: prepare
+    if: ${{ !cancelled() && needs.prepare.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      # TODO: Setup SFDX
+      # TODO: Promote SFDX package to production
+
+      - name: Placeholder
+        run: echo "Quantic SFDX publish"
+
+  typedoc:
+    name: Build TypeDoc
+    needs: prepare
+    if: ${{ !cancelled() && needs.prepare.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      # TODO: Build typedoc for headless
+      # TODO: Build typedoc for headless-react
+      # TODO: Upload artifacts
+
+      - name: Placeholder
+        run: echo "TypeDoc build"
+
+  docs-notify:
+    name: Notify Docs
+    needs: prepare
+    if: ${{ !cancelled() && needs.prepare.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      # TODO: Trigger docs rebuild
+
+      - name: Placeholder
+        run: echo "Docs notification"
+
+  finalize:
+    name: Finalize Release
+    needs: [npm-publish, cdn-publish, quantic-publish, typedoc, docs-notify]
+    if: ${{ always() && inputs.phase == 'publish' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO: Report release status (Slack notification)
+
+      - name: Placeholder
+        run: |
+          echo "=== FINALIZE ==="
+          echo "NPM: ${{ needs.npm-publish.result }}"
+          echo "CDN: ${{ needs.cdn-publish.result }}"
+          echo "Quantic: ${{ needs.quantic-publish.result }}"
+          echo "TypeDoc: ${{ needs.typedoc.result }}"
+          echo "Docs: ${{ needs.docs-notify.result }}"

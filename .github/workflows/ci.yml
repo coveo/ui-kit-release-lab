@@ -19,7 +19,6 @@ jobs:
   changeset-check:
     name: Changeset Check
     runs-on: ubuntu-latest
-    # Skip if PR has skip-changeset label
     if: ${{ github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'skip-changeset') }}
     steps:
       - uses: actions/checkout@v4
@@ -30,3 +29,41 @@ jobs:
           skip-build: 'true'
       - name: Check for changeset
         run: pnpm changeset status --since=origin/main
+
+  canary-npm:
+    name: Canary NPM
+    if: ${{ !cancelled() && needs.build.result == 'success' && github.event_name == 'merge_group' }}
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+
+      # TODO: For each package, set version to {current}-canary-{sha}-{date}
+      # TODO: pnpm publish --tag canary --no-git-checks
+      # TODO: NPM Trusted Publisher (OIDC) instead of NPM_TOKEN
+
+      - name: Placeholder
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          DATE=$(date +%Y%m%d)
+          echo "Would publish canary versions: *-canary-${SHORT_SHA}-${DATE}"
+
+  canary-cdn:
+    name: Canary CDN
+    if: ${{ !cancelled() && needs.build.result == 'success' && github.event_name == 'merge_group' }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          skip-build: 'true'
+
+      - name: Dispatch deploy-dev to ui-kit-cd
+        # run: node scripts/deploy/trigger-ui-kit-cd-dev.mjs
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
