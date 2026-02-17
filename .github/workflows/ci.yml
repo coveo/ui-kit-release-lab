@@ -43,15 +43,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
 
-      # TODO: For each package, set version to {current}-canary-{sha}-{date}
-      # TODO: pnpm publish --tag canary --no-git-checks
-      # TODO: NPM Trusted Publisher (OIDC) instead of NPM_TOKEN
+      - name: Version packages for canary
+        run: pnpm changeset version --snapshot canary
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Placeholder
-        run: |
-          SHORT_SHA=$(git rev-parse --short HEAD)
-          DATE=$(date +%Y%m%d)
-          echo "Would publish canary versions: *-canary-${SHORT_SHA}-${DATE}"
+      - name: Publish canary (dry-run)
+        run: pnpm publish -r --dry-run --no-git-checks --tag canary
 
   # TODO: Enable when ui-kit-cd trigger scripts are wired up
   # canary-cdn:
