@@ -98,21 +98,22 @@ jobs:
           # TODO: Replace with NPM Trusted Publisher (OIDC)
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  # cdn-publish:
-  #   name: CDN Publish
-  #   needs: prepare
-  #   if: ${{ !cancelled() && needs.publish-gate.result == 'success' }}
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: read
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: ./.github/actions/setup
+  cdn-publish:
+    name: CDN Publish
+    needs: prepare
+    if: ${{ !cancelled() && needs.prepare.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
 
-  #     - name: Dispatch CDN deploy to ui-kit-cd
-  #       # run: node scripts/deploy/trigger-ui-kit-cd.mjs
-  #       env:
-  #         GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: Dispatch CDN deploy to ui-kit-cd
+        # TODO: Replace with real script: node scripts/deploy/trigger-ui-kit-cd.mjs
+        run: echo "Would dispatch CDN release deploy to ui-kit-cd"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
   quantic-publish:
     name: Quantic SFDX Publish

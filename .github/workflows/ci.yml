@@ -51,19 +51,19 @@ jobs:
       - name: Publish canary (dry-run)
         run: pnpm publish -r --dry-run --no-git-checks --tag canary
 
-  # TODO: Enable when ui-kit-cd trigger scripts are wired up
-  # canary-cdn:
-  #   name: Canary CDN
-  #   if: ${{ !cancelled() && needs.build.result == 'success' && github.event_name == 'merge_group' }}
-  #   needs: build
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: ./.github/actions/setup
-  #       with:
-  #         skip-build: 'true'
-  #
-  #     - name: Dispatch deploy-dev to ui-kit-cd
-  #       run: node scripts/deploy/trigger-ui-kit-cd-dev.mjs
-  #       env:
-  #         GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  canary-cdn:
+    name: Canary CDN
+    if: ${{ !cancelled() && needs.build.result == 'success' && github.event_name == 'merge_group' }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          skip-build: 'true'
+
+      - name: Dispatch deploy-dev to ui-kit-cd
+        # TODO: Replace with real script: node scripts/deploy/trigger-ui-kit-cd-dev.mjs
+        run: echo "Would dispatch deploy-dev to ui-kit-cd for canary CDN deployment"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
