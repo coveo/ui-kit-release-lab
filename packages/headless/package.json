@@ -1,6 +1,6 @@
 {
   "name": "@release-lab/headless",
-  "version": "0.0.1",
+  "version": "3.2.1",
   "description": "Headless UI engine",
   "type": "module",
   "main": "./dist/index.js",

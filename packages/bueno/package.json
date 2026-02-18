@@ -1,6 +1,6 @@
 {
   "name": "@release-lab/bueno",
-  "version": "0.0.1",
+  "version": "3.2.1",
   "description": "A simple schema validator",
   "type": "module",
   "main": "./dist/index.js",
