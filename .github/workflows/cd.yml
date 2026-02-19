@@ -47,6 +47,11 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -85,6 +90,11 @@ jobs:
       contents: read
       id-token: write
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
 
@@ -106,6 +116,11 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
 
@@ -124,6 +139,11 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
 
@@ -139,6 +159,11 @@ jobs:
     if: ${{ !cancelled() && needs.prepare.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
 
@@ -155,6 +180,11 @@ jobs:
     if: ${{ !cancelled() && needs.prepare.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
 
@@ -171,6 +201,11 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@5ef0c079ce82195b2a36a210272d6b661572d83e # v2.14.2
+        with:
+          egress-policy: audit
+
       - uses: actions/checkout@v4
 
       # TODO: Report release status (Slack notification)
